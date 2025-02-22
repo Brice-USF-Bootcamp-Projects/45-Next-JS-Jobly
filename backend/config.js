@@ -1,32 +1,27 @@
+// backend/config.js
+
 "use strict";
+require("dotenv").config(); // ✅ Loads .env variables
 
-/** Shared config for application; can be required many places. */
-
-require("dotenv").config();
-require("colors");
-
-const SECRET_KEY = process.env.SECRET_KEY || "secret-dev";
-
+const SECRET_KEY = process.env.SECRET_KEY || "default-dev-secret";
 const PORT = +process.env.PORT || 3001;
 
-// Use dev database, testing database, or via env var, production database
+/** ✅ Returns the correct database URI based on the environment */
 function getDatabaseUri() {
-  return (process.env.NODE_ENV === "test")
-      ? "jobly_test"
-      : process.env.DATABASE_URL || "jobly";
+  if (process.env.NODE_ENV === "test") {
+    return process.env.TEST_DATABASE_URL || "postgresql://localhost/jobly_test";
+  }
+  return process.env.DATABASE_URL || `postgresql://${process.env.DATABASE_USER}:${process.env.DATABASE_PASSWORD}@${process.env.DATABASE_HOST}:${process.env.DATABASE_PORT}/${process.env.DATABASE_NAME}`;
 }
 
-// Speed up bcrypt during tests, since the algorithm safety isn't being tested
-//
-// WJB: Evaluate in 2021 if this should be increased to 13 for non-test use
-const BCRYPT_WORK_FACTOR = process.env.NODE_ENV === "test" ? 1 : 12;
+const BCRYPT_WORK_FACTOR = process.env.NODE_ENV === "test" ? 1 : +process.env.BCRYPT_WORK_FACTOR || 12;
 
-console.log("Jobly Config:".green);
-console.log("SECRET_KEY:".yellow, SECRET_KEY);
-console.log("PORT:".yellow, PORT.toString());
-console.log("BCRYPT_WORK_FACTOR".yellow, BCRYPT_WORK_FACTOR);
-console.log("Database:".yellow, getDatabaseUri());
-console.log("---");
+console.log("🔥 Jobly Config Loaded:");
+console.log("🔑 SECRET_KEY:", SECRET_KEY ? "Configured ✅" : "Missing ❌");
+console.log("🌎 ENVIRONMENT:", process.env.NODE_ENV || "development");
+console.log("🚀 Running on PORT:", PORT);
+console.log("🗄️ Database URI:", getDatabaseUri());
+console.log("--------------------------------------------------");
 
 module.exports = {
   SECRET_KEY,
