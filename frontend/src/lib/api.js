@@ -85,8 +85,12 @@ class JoblyApi {
    * Calls /companies/:handle to fetch the company data.
    */
   static async getCompany(handle) {
-    return await this.request(`companies/${handle}`);
+    console.log("📡 API Request: Fetching company:", handle);
+    const response = await this.request(`companies/${handle}`);
+    console.log("🔍 API Response for Company:", response);
+    return response;
   }
+  
 
   // Job methods
 

@@ -66,13 +66,15 @@ export default function CompaniesPage() {
         <div>Loading companies...</div>  // Show loading message while fetching
       ) : (
         <ul>
-          {/* Render list of companies */}
-          {companies.map((company) => (
-            <li key={company.handle}>
-              {company.name}
-            </li>
-          ))}
-        </ul>
+  {companies.map((company) => (
+    <li key={company.handle} className="p-4 border rounded-md mb-2">
+      <a href={`/companies/${company.handle}`} className="text-blue-500 font-bold hover:underline">
+        {company.name}
+      </a>
+    </li>
+  ))}
+</ul>
+
       )}
     </main>
   );
