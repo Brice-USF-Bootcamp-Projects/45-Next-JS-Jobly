@@ -137,5 +137,21 @@ router.post("/:username/jobs/:id", ensureCorrectUserOrAdmin, async function (req
   }
 });
 
+router.put("/:username", async (req, res, next) => {
+  try {
+    const { firstName, lastName, email, password } = req.body;
+    
+    const updatedUser = await User.update(req.params.username, {
+      firstName,
+      lastName,
+      email,
+      password,
+    });
+
+    return res.json(updatedUser);
+  } catch (err) {
+    return next(err);
+  }
+});
 
 module.exports = router;

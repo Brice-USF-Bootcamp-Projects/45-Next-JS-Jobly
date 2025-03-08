@@ -4,7 +4,6 @@ import axios from "axios";
 
 // Use the appropriate environment variable for base URL
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3001";
-const API_TOKEN = process.env.NEXT_PUBLIC_API_TOKEN;  // Access the public API token
 
 /**
  * JoblyApi class handles all API calls to the backend.
@@ -17,23 +16,35 @@ class JoblyApi {
    * Handles errors and returns the response data.
    */
   static async request(endpoint, data = {}, method = "get") {
-    console.debug("API Call:", endpoint, method, data);
+    // Get the token dynamically on each request
+    const API_TOKEN = localStorage.getItem("token"); // Retrieve token from localStorage
+    const headers = API_TOKEN ? { Authorization: `Bearer ${API_TOKEN}` } : {}; // Set headers with token if available
+
+    console.debug("API Request - Endpoint:", endpoint);
+    console.debug("API Method:", method);
+    console.debug("API Data:", data);
+    console.debug("API Headers:", headers);
 
     // Construct the full URL for the API request
     const url = `${BASE_URL}/${endpoint}`;
-
-    // Add Authorization header if API_TOKEN exists
-    const headers = API_TOKEN ? { Authorization: `Bearer ${API_TOKEN}` } : {};
 
     // If it's a GET request, use params, otherwise, send data in the body
     const params = method === "get" ? data : {};
 
     try {
-      // Send the request and return the data
-      return (await axios({ url, method, data, params, headers })).data;
+      // Send the request and log the full request for debugging
+      const response = await axios({ url, method, data, params, headers });
+
+      // Log the response
+      console.debug("API Response:", response);
+      return response.data;
     } catch (err) {
       console.error("API Error:", err.response || err.message);
+
+      // Log the error response for debugging
       let message = err.response?.data?.error?.message || err.message || "An unknown error occurred. Please try again.";
+      console.error("API Error Details:", message);
+
       throw Array.isArray(message) ? message : [message];
     }
   }
@@ -46,7 +57,7 @@ class JoblyApi {
    */
   static async login(credentials) {
     let res = await this.request("auth/token", credentials, "post");
-    return res.token;  // Return the auth token
+    return res.token; // Return the auth token
   }
 
   /**
@@ -84,7 +95,9 @@ class JoblyApi {
    * Calls /jobs and can filter by title if searchTerm is provided.
    */
   static async getJobs(searchTerm = "", limit = 10, page = 1) {
-    const url = searchTerm ? `jobs?title=${searchTerm}&limit=${limit}&page=${page}` : `jobs?limit=${limit}&page=${page}`;
+    const url = searchTerm
+      ? `jobs?title=${searchTerm}&limit=${limit}&page=${page}`
+      : `jobs?limit=${limit}&page=${page}`;
     return await this.request(url);
   }
 
@@ -121,4 +134,3 @@ class JoblyApi {
 }
 
 export default JoblyApi;
-

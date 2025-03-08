@@ -28,7 +28,7 @@ export default function LoginModal({ setShowLogin }) {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
       <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-4">Login</h2>
+        <h2 className="text-2xl text-black font-bold mb-4">Login</h2>
         <form onSubmit={handleLogin}>
           <div className="mb-4">
             <label htmlFor="username" className="block text-sm font-medium text-gray-700">Username</label>
@@ -38,7 +38,7 @@ export default function LoginModal({ setShowLogin }) {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
-              className="mt-1 p-2 w-full border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="mt-1 p-2 w-full border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
             />
           </div>
           <div className="mb-6">
@@ -49,7 +49,7 @@ export default function LoginModal({ setShowLogin }) {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="mt-1 p-2 w-full border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="mt-1 p-2 w-full border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
             />
           </div>
           {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
