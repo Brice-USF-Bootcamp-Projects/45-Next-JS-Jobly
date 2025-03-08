@@ -15,9 +15,15 @@ export default function CompanyPage() {
     async function fetchCompany() {
       setLoading(true);
       try {
-        const companyData = await JoblyApi.getCompany(handle);
-        console.log("🔍 Company Data:", companyData);
-        setCompany(companyData);
+        const response = await JoblyApi.getCompany(handle);
+        console.log("🔍 Company Data:", response);
+
+        if (!response || !response.company) {
+          console.error("❌ No company data returned!");
+          setCompany(null);
+        } else {
+          setCompany(response.company); // ✅ Extract `company` from response
+        }
       } catch (err) {
         console.error("❌ Error fetching company data:", err);
       } finally {
@@ -42,13 +48,13 @@ export default function CompanyPage() {
 
   return (
     <main className="container mx-auto mt-10 p-6 max-w-3xl bg-white shadow-lg rounded-lg">
-      <h1 className="text-3xl font-bold text-blue-600">{company.name}</h1>
-      <p className="text-gray-600 mt-2">{company.description}</p>
+      <h1 className="text-3xl font-bold text-blue-600">{company.name || "Unknown Company"}</h1>
+      <p className="text-gray-600 mt-2">{company.description || "No description available."}</p>
 
       {/* Jobs Section */}
       <div className="mt-6">
         <h2 className="text-xl font-semibold">Available Jobs</h2>
-        {company.jobs.length > 0 ? (
+        {company.jobs && company.jobs.length > 0 ? ( // ✅ Ensure `company.jobs` is defined
           <ul className="mt-4">
             {company.jobs.map((job) => (
               <li key={job.id} className="p-4 border rounded-md mb-2 flex justify-between items-center">
@@ -77,3 +83,4 @@ export default function CompanyPage() {
     </main>
   );
 }
+
