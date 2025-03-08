@@ -1,52 +1,70 @@
 // src/app/jobs/page.js
 
-'use client'
+'use client';
 import { useState, useEffect } from 'react';
 import JoblyApi from '../../lib/api';
-import JobList from '../../components/JobList';  // Import JobList to display jobs
-import SearchForm from '../../components/SearchForm';  // Import SearchForm to handle searching
 
 export default function JobsPage() {
-  const [jobs, setJobs] = useState([]);        // State to hold the list of jobs
-  const [loading, setLoading] = useState(true); // State for loading status
-  const [searchTerm, setSearchTerm] = useState(""); // State for search term
+  const [jobs, setJobs] = useState([]);
+  const [search, setSearch] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null); // Track errors
 
-  // Fetch jobs when the component is mounted or when searchTerm changes
   useEffect(() => {
     async function fetchJobs() {
-      setLoading(true); // Set loading state to true before fetching data
+      setLoading(true);
+      setError(null); // Reset error before fetching
+
       try {
-        const jobList = await JoblyApi.getJobs(searchTerm); // Fetch jobs using searchTerm
-        setJobs(jobList);  // Set the jobs state with the fetched data
+        console.log("📡 API Request: Fetching jobs with search:", search);
+        const response = await JoblyApi.getJobs(search);
+        console.log("🔍 API Response for Jobs:", response);
+
+        if (!response || !Array.isArray(response)) {
+          console.error("❌ Unexpected response format:", response);
+          setError("Failed to load jobs. Please try again.");
+          setJobs([]); // Ensure it's an empty array
+        } else {
+          setJobs(response);
+        }
       } catch (err) {
-        console.error('Error fetching jobs:', err); // Handle errors
+        console.error("❌ API Error:", err);
+        setError("Failed to fetch jobs.");
+        setJobs([]); // Prevent .map() errors
       } finally {
-        setLoading(false); // Set loading to false after fetching is complete
+        setLoading(false);
       }
     }
 
-    fetchJobs(); // Call the fetchJobs function
-  }, [searchTerm]); // Re-run when searchTerm changes
-
-  // Handle changes to the search input
-  const handleSearch = (e) => {
-    setSearchTerm(e.target.value); // Update searchTerm with the input value
-  };
-
-  // Render loading or jobs list based on loading state
-  if (loading) {
-    return <div>Loading jobs...</div>;
-  }
+    fetchJobs();
+  }, [search]);
 
   return (
-    <main className="container">
-      <h1 className="text-primary">Jobs</h1>
+    <main className="container mx-auto p-6">
+      <h1 className="text-3xl font-bold">Jobs</h1>
 
-      {/* Search Form */}
-      <SearchForm placeholder="Search for jobs" handleSearch={handleSearch} />
+      <input
+        type="text"
+        placeholder="Search for jobs"
+        className="mt-4 p-2 w-full border rounded-md"
+        onChange={(e) => setSearch(e.target.value)}
+      />
 
-      {/* Display job list */}
-      <JobList jobs={jobs} />
+      {loading && <p className="mt-4 text-gray-500">Loading jobs...</p>}
+
+      {error && <p className="text-red-500">{error}</p>}
+
+      {!loading && !error && jobs.length === 0 && <p className="text-gray-500">No jobs found.</p>}
+
+      <ul className="mt-4">
+        {jobs.map((job) => (
+          <li key={job.id} className="p-4 border rounded-md mb-2">
+            <h2 className="font-bold">{job.title}</h2>
+            <p>{job.companyHandle}</p>
+            <button className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-md">Apply</button>
+          </li>
+        ))}
+      </ul>
     </main>
   );
 }

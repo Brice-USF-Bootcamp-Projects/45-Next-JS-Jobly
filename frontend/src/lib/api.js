@@ -98,12 +98,23 @@ class JoblyApi {
    * Get all jobs (or filter by searchTerm).
    * Calls /jobs and can filter by title if searchTerm is provided.
    */
-  static async getJobs(searchTerm = "", limit = 10, page = 1) {
-    const url = searchTerm
-      ? `jobs?title=${searchTerm}&limit=${limit}&page=${page}`
-      : `jobs?limit=${limit}&page=${page}`;
-    return await this.request(url);
+  static async getJobs(searchTerm = "") {
+    console.log("📡 API Request: Fetching jobs with search:", searchTerm);
+  
+    // Ensure we send only valid query parameters
+    const url = searchTerm ? `jobs?title=${searchTerm}` : "jobs";
+  
+    try {
+      const response = await this.request(url);
+      console.log("🔍 API Response for Jobs:", response);
+  
+      return response.jobs || []; // Ensure it always returns an array
+    } catch (err) {
+      console.error("❌ API Error:", err.response?.data || err.message);
+      throw new Error("Failed to fetch jobs.");
+    }
   }
+  
 
   /**
    * Apply for a job.
