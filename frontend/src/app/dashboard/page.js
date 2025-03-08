@@ -1,54 +1,71 @@
 // src/app/dashboard/page.js
 
-'use client'
+'use client';
 import { useState, useEffect } from 'react';
 import JoblyApi from '../../lib/api';
 
 export default function Dashboard() {
-  const [userInfo, setUserInfo] = useState(null); // State to hold user info
-  const [loading, setLoading] = useState(true);   // Loading state
+  const [userInfo, setUserInfo] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchUserInfo() {
       try {
-        // Fetch the logged-in user's info (use a username or token)
-        const user = await JoblyApi.getUser('testuser'); // Replace 'testuser' with the actual logged-in user
+        console.log("📡 Fetching user data...");
+        const user = await JoblyApi.getUser('testuser'); // Replace with actual user logic
+        console.log("🔍 Full User Data:", JSON.stringify(user, null, 2)); // ✅ LOG FULL USER OBJECT
+
+        if (!user || Object.keys(user).length === 0) {
+          console.error("❌ No user data returned!");
+        }
+
         setUserInfo(user);
       } catch (err) {
-        console.error('Error fetching user info:', err);
+        console.error('❌ Error fetching user info:', err);
       } finally {
         setLoading(false);
       }
     }
 
-    fetchUserInfo();  // Fetch the user info when the page is loaded
-  }, []);  // Empty dependency array means this effect runs once on mount
+    fetchUserInfo();
+  }, []);
 
   if (loading) {
-    return <div>Loading user data...</div>;
+    return <div className="text-center mt-10 text-gray-600">Loading user data...</div>;
   }
 
-  if (!userInfo) {
-    return <div>Error loading user data. Please try again later.</div>;
+  if (!userInfo || !userInfo.username) {
+    return <div className="text-center mt-10 text-red-500">Error loading user data. Please try again.</div>;
   }
 
   return (
-    <main className="container">
-      <h1 className="text-primary">Welcome to your Dashboard, {userInfo.firstName}!</h1>
+    <main className="container mx-auto mt-10 p-6 max-w-3xl bg-white shadow-lg rounded-lg">
+      <h1 className="text-3xl font-bold text-blue-600 text-center">Welcome, {userInfo.firstName || "User"}!</h1>
 
-      {/* Display user profile information */}
-      <div>
-        <h3>Profile Information:</h3>
-        <p><strong>Username:</strong> {userInfo.username}</p>
-        <p><strong>Email:</strong> {userInfo.email}</p>
-        <p><strong>Full Name:</strong> {userInfo.firstName} {userInfo.lastName}</p>
+      {/* Profile Section */}
+      <div className="mt-6 border p-4 rounded-lg">
+        <h3 className="text-xl font-semibold">Profile Information</h3>
+        <p className="mt-2"><strong>Username:</strong> {userInfo.username || "N/A"}</p>
+        <p><strong>Email:</strong> {userInfo.email || "N/A"}</p>
+        <p><strong>Full Name:</strong> {userInfo.firstName || "N/A"} {userInfo.lastName || "N/A"}</p>
       </div>
 
-      {/* Placeholder for future job-related information */}
-      <div>
-        <h3>Your Applied Jobs</h3>
-        <p>No jobs applied yet.</p>
+      {/* Applied Jobs Section */}
+      <div className="mt-6 border p-4 rounded-lg">
+        <h3 className="text-xl font-semibold">Your Applied Jobs</h3>
+        {userInfo.applications && userInfo.applications.length > 0 ? (
+          <ul className="mt-2">
+            {userInfo.applications.map((job, index) => (
+              <li key={index} className="p-2 border-b last:border-none">
+                <strong>{job.title}</strong> at <span className="text-blue-500">{job.companyHandle}</span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-gray-500">No jobs applied yet.</p>
+        )}
       </div>
     </main>
   );
 }
+

@@ -116,13 +116,17 @@ class JoblyApi {
    * Calls /users/:username to fetch the user profile.
    */
   static async getUser(username) {
-    return await this.request(`users/${username}`);
+    console.log("📡 API Request: Fetching user:", username);
+    const response = await this.request(`users/${username}`);
+    console.log("🔍 API Response for getUser:", response);
+  
+    if (!response || Object.keys(response).length === 0) {
+      console.error("❌ API returned empty user data!");
+    }
+  
+    return response;
   }
-
-  /**
-   * Update user profile.
-   * Sends updated user details to /users/:username with PATCH.
-   */
+  
   static async updateUser(username, userData) {
     return await this.request(`users/${username}`, userData, "patch");
   }

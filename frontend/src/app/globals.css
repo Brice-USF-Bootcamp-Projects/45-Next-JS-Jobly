@@ -14,8 +14,23 @@
   }
 }
 
+/* Apply a modern font and background */
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Inter', sans-serif;
+  background-color: #f8f9fa;
+  color: #333;
+  margin: 0;
+  padding: 0;
+}
+
+/* Center everything nicely */
+.container {
+  max-width: 800px;
+  margin: auto;
+  padding: 20px;
+}
+
+/* Improve spacing for main content */
+main {
+  padding-top: 20px;
 }
