@@ -1,7 +1,7 @@
 // src/components/JobList.js
 
 import Link from 'next/link';
-import './NavBar.css';
+import '../styles/NavBar.css';
 
 export default function NavBar() {
   return (

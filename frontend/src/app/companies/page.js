@@ -12,19 +12,36 @@ export default function CompaniesPage() {
   // Fetch companies when the component mounts or searchTerm changes
   useEffect(() => {
     async function fetchCompanies() {
-      setLoading(true);  // Set loading state to true before starting the request
+      setLoading(true);
       try {
         const companyList = await JoblyApi.getCompanies(searchTerm);
-        setCompanies(companyList);  // Set the companies state to the fetched list
+        console.log("🔍 API Response for Companies:", companyList); // ✅ Debugging log
+  
+        // ✅ Ensure `companies` is correctly set as an array
+        if (!companyList) {
+          console.error("❌ API returned null or undefined.");
+          setCompanies([]);  // Set to empty array to prevent errors
+        } else if (Array.isArray(companyList)) {
+          setCompanies(companyList); // ✅ Directly set if it's already an array
+        } else if (companyList.companies && Array.isArray(companyList.companies)) {
+          setCompanies(companyList.companies); // ✅ Handle wrapped response
+        } else {
+          console.error("❌ Unexpected response format:", companyList);
+          setCompanies([]); // ✅ Ensure safe state
+        }
+  
       } catch (err) {
-        console.error("Error fetching companies:", err);  // Log errors to the console
+        console.error("❌ Error fetching companies:", err);
+        setCompanies([]); // ✅ Prevent breaking `map()` if request fails
       } finally {
-        setLoading(false);  // Set loading state to false after the request is finished
+        setLoading(false);
       }
     }
-
-    fetchCompanies();  // Call the fetch function
-  }, [searchTerm]);  // Effect runs when searchTerm changes
+  
+    fetchCompanies();
+  }, [searchTerm]);
+  
+  
 
   // Handle changes in the search input
   const handleSearch = (e) => {
@@ -33,7 +50,7 @@ export default function CompaniesPage() {
 
   return (
     <main className="container">
-      <h1 className="text-primary">Companies</h1>
+      <h1 className="text-primary font-bold text-2xl">Companies</h1>
 
       {/* Search bar to filter companies */}
       <input
