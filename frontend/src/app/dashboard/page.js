@@ -12,14 +12,15 @@ export default function Dashboard() {
     async function fetchUserInfo() {
       try {
         console.log("📡 Fetching user data...");
-        const user = await JoblyApi.getUser('testuser'); // Replace with actual user logic
-        console.log("🔍 Full User Data:", JSON.stringify(user, null, 2)); // ✅ LOG FULL USER OBJECT
+        const response = await JoblyApi.getUser('testuser'); // Replace with actual user logic
+        console.log("🔍 Full User Data:", JSON.stringify(response, null, 2));
 
-        if (!user || Object.keys(user).length === 0) {
+        if (!response || !response.user) {
           console.error("❌ No user data returned!");
+          setUserInfo(null);
+        } else {
+          setUserInfo(response.user); // ✅ Extract the "user" object
         }
-
-        setUserInfo(user);
       } catch (err) {
         console.error('❌ Error fetching user info:', err);
       } finally {
@@ -34,13 +35,15 @@ export default function Dashboard() {
     return <div className="text-center mt-10 text-gray-600">Loading user data...</div>;
   }
 
-  if (!userInfo || !userInfo.username) {
+  if (!userInfo) {
     return <div className="text-center mt-10 text-red-500">Error loading user data. Please try again.</div>;
   }
 
   return (
     <main className="container mx-auto mt-10 p-6 max-w-3xl bg-white shadow-lg rounded-lg">
-      <h1 className="text-3xl font-bold text-blue-600 text-center">Welcome, {userInfo.firstName || "User"}!</h1>
+      <h1 className="text-3xl font-bold text-blue-600 text-center">
+        Welcome, {userInfo.firstName || "User"}!
+      </h1>
 
       {/* Profile Section */}
       <div className="mt-6 border p-4 rounded-lg">
@@ -68,4 +71,3 @@ export default function Dashboard() {
     </main>
   );
 }
-
