@@ -5,10 +5,11 @@ import { useState, useEffect } from 'react';
 import JoblyApi from '../../lib/api';
 
 export default function JobsPage() {
-  const [jobs, setJobs] = useState([]);
+  const [jobs, setJobs] = useState([]);  // Stores job list
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null); // Track errors
+  const [appliedJobs, setAppliedJobs] = useState(new Set()); // Track applied jobs
 
   useEffect(() => {
     async function fetchJobs() {
@@ -39,6 +40,11 @@ export default function JobsPage() {
     fetchJobs();
   }, [search]);
 
+  // Handle Apply Button Click
+  const handleApply = (jobId) => {
+    setAppliedJobs(new Set([...appliedJobs, jobId])); // Add job to applied set
+  };
+
   return (
     <main className="container mx-auto p-6">
       <h1 className="text-3xl font-bold">Jobs</h1>
@@ -58,13 +64,26 @@ export default function JobsPage() {
 
       <ul className="mt-4">
         {jobs.map((job) => (
-          <li key={job.id} className="p-4 border rounded-md mb-2">
-            <h2 className="font-bold">{job.title}</h2>
-            <p>{job.companyHandle}</p>
-            <button className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-md">Apply</button>
+          <li key={job.id} className="p-4 border rounded-md mb-2 flex justify-between items-center">
+            <div>
+              <h2 className="font-bold">{job.title}</h2>
+              <p>{job.companyHandle}</p>
+            </div>
+            <button
+              className={`px-4 py-2 rounded-md transition-all ${
+                appliedJobs.has(job.id)
+                  ? "bg-gray-400 cursor-not-allowed text-white opacity-50"
+                  : "bg-blue-500 hover:bg-blue-600 text-white"
+              }`}
+              onClick={() => handleApply(job.id)}
+              disabled={appliedJobs.has(job.id)}
+            >
+              {appliedJobs.has(job.id) ? "Applied" : "Apply"}
+            </button>
           </li>
         ))}
       </ul>
     </main>
   );
 }
+
